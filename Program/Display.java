@@ -7,14 +7,41 @@ public class Display {
     Resolution resolution;
     double size;
     double frequency;
-    double brightness;
+    int brightness;
 
-    public Display(String displayType, Resolution resolution, double size, double frequency, double brightness) {
+    public Display(String displayType, Resolution resolution, double size, double frequency, int brightness) {
         this.displayType = displayType;
         this.resolution = resolution;
         this.size = size;
         this.frequency = frequency;
         this.brightness = brightness;
+    }
+
+    public static Display[] generateRandomDisplays(int count) {
+        if (count > 0) {
+            String[] displayTypes = {"LCD", "LED", "AMOLED", "RETINA", "IPS LCS"};
+            Resolution[] resolutions = {
+                    new Resolution(1280, 720, "HD"),
+                    new Resolution(1920, 1080, "FullHD"),
+                    new Resolution(3840, 2160, "4K UHD"),
+                    new Resolution(7680, 4320, "8K UHD")
+            };
+            Double[] displaySizes = {10.0, 13.0, 15.6, 17.0, 19.0};
+            Double[] frequencies = {59.9, 60.0, 120.0, 144.0};
+            Integer[] brightnesses = {300, 350, 400, 450, 500};
+
+            Display[] result = new Display[count];
+            for (int i = 0; i < count; i++) {
+                result[i] = new Display(
+                        MyUtils.getRandom(displayTypes),
+                        MyUtils.getRandom(resolutions),
+                        MyUtils.getRandom(displaySizes),
+                        MyUtils.getRandom(frequencies),
+                        MyUtils.getRandom(brightnesses));
+            }
+            return result;
+        }
+        else return null;
     }
 
     public String getDisplayType() {
@@ -53,11 +80,11 @@ public class Display {
         this.frequency = frequency;
     }
 
-    public double getBrightness() {
+    public int getBrightness() {
         return brightness;
     }
 
-    public void setBrightness(double brightness) {
+    public void setBrightness(int brightness) {
         this.brightness = brightness;
     }
 

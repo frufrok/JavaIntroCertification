@@ -1,5 +1,6 @@
 package Program;
 
+import java.util.HashSet;
 import java.util.Objects;
 
 public class Laptop {
@@ -27,6 +28,37 @@ public class Laptop {
         this.hardDrive = hardDrive;
         this.operatingSystem = operatingSystem;
         this.processor = processor;
+    }
+
+    public static Laptop[] generateRandomLaptops(int count) {
+        if (count > 0)
+        {
+            String[] brands = {"HP", "Lenovo", "Apple", "Dell", "Xiaomi", "Acer", "Samsung"};
+            String[] models = {"Pavillion", "Thinkpad", "MacBook", "Vostro", "RedmiBook", "Aspire", "Galaxy Book"};
+            String[] colors = {"Black", "White", "Blue", "Gray", "Silver", "Rose", "Pink", "Aluminium"};
+            Double[] weights = new Double[10];
+            Double[] prices = new Double[10];
+            Double[] discounts = new Double[10];
+            for (int i = 0; i < 10; i++) {
+                weights[i] = 1000 + i*100.0;
+                prices[i] = 30000+i*15000.0;
+                discounts[i] = 0 + i*5.0;
+            }
+
+            Display[] displays = Display.generateRandomDisplays(count);
+
+            Laptop[] result = new Laptop[count];
+            for (int i = 0; i<count; i++) {
+                String[] brandAndModel = MyUtils.getRandom(brands, models);
+                result[i] = new Laptop(
+                        brandAndModel[0], brandAndModel[1], MyUtils.getRandom(colors),
+                        MyUtils.getRandom(weights), MyUtils.getRandom(prices), MyUtils.getRandom(discounts),
+                        MyUtils.getRandom(displays), null, null,
+                        null, null );
+            }
+            return result;
+        }
+        else return null;
     }
 
     public String getBrand() {
@@ -117,9 +149,17 @@ public class Laptop {
         this.processor = processor;
     }
 
+    public String toStringTabulated() {
+        return String.format("%s \t%s \t%s \t%.2f \t-%.1f %%",
+                MyUtils.getReqLength(brand, 15),
+                MyUtils.getReqLength(model, 15),
+                MyUtils.getReqLength(color, 10),
+                price, discount);
+    }
+
     @Override
     public String toString() {
-        return String.format("%s %s %s", brand, model, color);
+        return String.format("%s %s %s %.2f -%.2f%%", brand, model, color, price, discount);
     }
 
     @Override
