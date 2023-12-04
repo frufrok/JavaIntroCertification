@@ -1,7 +1,6 @@
 package Program;
 
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 public class Laptop {
     String brand;
@@ -155,6 +154,22 @@ public class Laptop {
                 MyUtils.getReqLength(model, 15),
                 MyUtils.getReqLength(color, 10),
                 price, discount);
+    }
+
+    public LinkedHashMap<String, String> getStringParams() {
+        LinkedHashMap<String, String> result = new LinkedHashMap<String, String>();
+        result.putLast("Brand", this.brand);
+        result.putLast("Model", this.model);
+        result.putLast("Color", this.color);
+        return result;
+    }
+    public void setStringParams(LinkedHashMap<String, String> params){
+        String brand = params.get("Brand");
+        String model = params.get("Model");
+        String color = params.get("Color");
+        if (brand != null) this.brand = brand;
+        if (model != null) this.model = model;
+        if (color != null) this.color = color;
     }
 
     @Override
