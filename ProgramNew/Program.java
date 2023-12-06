@@ -1,7 +1,6 @@
 package ProgramNew;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Program {
     public static void main(String[] args) {
@@ -33,7 +32,7 @@ public class Program {
                         print("No such laptop.");
                     }
                     else {
-                        showLaptop(index, laptops.get(index), in);
+                        showLaptop(index, laptops.get(index));
                     }
                 }
                 catch (Exception e) {
@@ -43,8 +42,37 @@ public class Program {
         } while (!command.equals("b"));
     }
 
-    static void showLaptop(int index, Laptop laptop, Scanner in) {
-        print(Integer.toString(index + 1) + ". " + laptop.toString());
+    static void showLaptop(int index, Laptop laptop) {
+        print((index + 1) + ". " + laptop.toString());
+        HashMap<Parameter, Definition> defs = laptop.definitions;
+        Map<String, List<Definition>> groupedDefs = defs.values().stream().collect(
+                Collectors.groupingBy(Definition::getParameterSection));
+        ArrayList<String> sections = new ArrayList<>(groupedDefs.keySet());
+        sections.sort(String::compareTo);
+        for (String section : sections) {
+            print("\t" + section + ":");
+            List<Definition> sectionDefs = groupedDefs.get(section);
+            sectionDefs.sort(Comparator.comparing(Definition::getParameterName));
+            for (Definition def : sectionDefs) {
+                print("\t\t" + def.getParameterName() + ": " + def.getValue().toString());
+            }
+        }
+    }
+
+    static String reqLenStr(String str, int reqLen){
+        if (str!= null && !str.isBlank()) {
+            int len = str.length();
+            if (len > reqLen) {
+                return str.substring(reqLen);
+            }
+            else {
+                return str + " ".repeat(reqLen - len);
+            }
+        }
+        else
+        {
+            return " ".repeat(reqLen);
+        }
     }
 
     static  void terminate(Scanner in) {
