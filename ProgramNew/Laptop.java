@@ -1,6 +1,5 @@
 package ProgramNew;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Laptop {
     String brand;
@@ -19,13 +18,7 @@ public class Laptop {
 
     HashMap<Parameter, Definition> definitions;
 
-    HashMap<Parameter, String> stringParams;
-
-    HashMap<Parameter, Integer> intParams;
-
-    HashMap<Parameter, Double> doubleParams;
-
-    public Laptop(String brand, String model, String color, int vendorCode, int barCode, double price, double discount, HashMap<Parameter, String> stringParams, HashMap<Parameter, Integer> intParams, HashMap<Parameter, Double> doubleParams) {
+    public Laptop(String brand, String model, String color, int vendorCode, int barCode, double price, double discount, HashMap<Parameter, Definition> definitions) {
         this.brand = brand;
         this.model = model;
         this.color = color;
@@ -33,13 +26,8 @@ public class Laptop {
         this.barCode = barCode;
         this.price = price;
         this.discount = discount;
-        this.stringParams = Objects.requireNonNullElseGet(stringParams, HashMap::new);
-        this.intParams = Objects.requireNonNullElseGet(intParams, HashMap::new);
-        this.doubleParams = Objects.requireNonNullElseGet(doubleParams, HashMap::new);
-        defineStringParamPrivate("Primary", "Brand", brand);
-        defineStringParamPrivate("Primary", "Model", model);
-        defineStringParamPrivate("Primary", "Color", color);
-        defineDoubleParamPrivate("Primary", "Price", getDiscountedPrice());
+        this.definitions = Objects.requireNonNullElseGet(definitions, HashMap::new);
+        refreshBaseDefinitions();
     }
 
     public String getBrand() {
@@ -48,7 +36,7 @@ public class Laptop {
 
     public void setBrand(String brand) {
         this.brand = brand;
-        defineStringParamPrivate("Primary", "Brand", brand);
+        refreshBaseDefinitions();
     }
 
     public String getModel() {
@@ -57,7 +45,7 @@ public class Laptop {
 
     public void setModel(String model) {
         this.model = model;
-        defineStringParamPrivate("Primary", "Model", model);
+        refreshBaseDefinitions();
     }
 
     public String getColor() {
@@ -66,9 +54,8 @@ public class Laptop {
 
     public void setColor(String color) {
         this.color = color;
-        defineStringParamPrivate("Primary", "Color", color);
+        refreshBaseDefinitions();
     }
-
 
     public double getPrice() {
         return price;
@@ -76,7 +63,7 @@ public class Laptop {
 
     public void setPrice(double price) {
         this.price = Math.max(price, 0);
-        defineDoubleParamPrivate("Primary", "Price", getDiscountedPrice());
+        refreshBaseDefinitions();
     }
 
     public double getDiscount() {
@@ -85,7 +72,7 @@ public class Laptop {
 
     public void setDiscount(double discount) {
         this.discount = Math.max(0, Math.min(discount, 100));
-        defineDoubleParamPrivate("Primary", "Price", getDiscountedPrice());
+        refreshBaseDefinitions();
     }
 
     public double getDiscountedPrice() {
@@ -108,73 +95,63 @@ public class Laptop {
         this.barCode = barCode;
     }
 
-    public HashMap<Parameter, String> getStringParams() {
-        return stringParams;
+    private void refreshBaseDefinitions() {
+        Parameter brandParam = new Parameter("Primary", "Brand", 0);
+        Parameter modelParam = new Parameter("Primary", "Model", 0);
+        Parameter colorParam = new Parameter("Appearance", "Color", 0);
+        Parameter vendorCodeParam = new Parameter("Codes", "Vendor Code", 0);
+        Parameter barCodeParam = new Parameter("Codes", "Bar Code", 0);
+        Parameter priceParam = new Parameter("Price", "Base", 2);
+        Parameter discountParam = new Parameter("Price", "Discount", 2);
+        Parameter discountedPriceParam = new Parameter("Price", "Final", 2);
+
+        this.definitions.put(brandParam, new Definition(brandParam, this.brand));
+        this.definitions.put(modelParam, new Definition(modelParam, this.model));
+        this.definitions.put(colorParam, new Definition(colorParam, this.color));
+        this.definitions.put(vendorCodeParam, new Definition(vendorCodeParam, this.vendorCode));
+        this.definitions.put(barCodeParam, new Definition(barCodeParam, this.barCode));
+        this.definitions.put(priceParam, new Definition(priceParam, this.price));
+        this.definitions.put(discountParam, new Definition(discountParam, this.discount));
+        this.definitions.put(discountedPriceParam, new Definition(discountedPriceParam, getDiscountedPrice()));
     }
 
-    public void setStringParams(HashMap<Parameter, String> stringParams) {
-        this.stringParams = Objects.requireNonNullElseGet(stringParams, HashMap::new);
-        defineStringParamPrivate("Primary", "Brand", brand);
-        defineStringParamPrivate("Primary", "Model", model);
-        defineStringParamPrivate("Primary", "Color", color);
+    public HashMap<Parameter, Definition> getDefinitions() {
+        return this.definitions;
     }
 
-    public void defineStringParam(String section, String name, String value) {
-        if (section.equals("Primary")){
-            if (!name.equals("Brand") && !name.equals("Model") && !name.equals("Color")) {
-                defineStringParamPrivate(section, name, value);
+    public void setDefinitions(HashMap<Parameter, Definition> definitions) {
+        this.definitions = Objects.requireNonNullElseGet(definitions, HashMap::new);
+        refreshBaseDefinitions();
+    }
+
+    public void addDefinition(Definition definition) {
+        this.definitions.put(definition.parameter, definition);
+        refreshBaseDefinitions();
+    }
+
+    public boolean hasSameDefinitions(Laptop another) {
+        boolean result = true;
+        ArrayList<Definition> thisDefs = new ArrayList<>(this.definitions.values());
+        ArrayList<Definition> anotherDefs = new ArrayList<>(another.definitions.values());
+
+        if (thisDefs.size() == anotherDefs.size()){
+            Comparator<Definition> comparator = Comparator.comparing(o -> o.parameter.toString());
+
+            thisDefs.sort(comparator);
+            anotherDefs.sort(comparator);
+
+            int count = thisDefs.size();
+            for (int i = 0; i < count; i++) {
+                if (!thisDefs.get(i).equals(anotherDefs.get(i))) {
+                    result = false;
+                    break;
+                }
             }
         }
-    }
-
-    void defineStringParamPrivate(String section, String name, String value) {
-        if (value != null && !value.isBlank()) {
-            stringParams.put(new Parameter(section, name, 0), value);
-        }
         else {
-            stringParams.remove(new Parameter(section, name, 0));
+            result = false;
         }
-    }
-
-    public HashMap<Parameter, Integer> getIntParams() {
-        return intParams;
-    }
-
-    public void setIntParams(HashMap<Parameter, Integer> intParams) {
-        this.intParams = Objects.requireNonNullElseGet(intParams, HashMap::new);
-    }
-
-    public void defineIntParam(String section, String name, int value) {
-        if (value != 0) {
-            intParams.put(new Parameter(section, name, 1), value);
-        }
-        else {
-            intParams.remove(new Parameter(section, name, 1));
-        }
-    }
-
-    public HashMap<Parameter, Double> getDoubleParams() {
-        return doubleParams;
-    }
-
-    public void setDoubleParams(HashMap<Parameter, Double> doubleParams) {
-        this.doubleParams = Objects.requireNonNullElseGet(doubleParams, HashMap::new);
-        defineDoubleParamPrivate("Primary", "Price", getDiscountedPrice());
-    }
-
-    public void defineDoubleParam(String section, String name, double value) {
-        if (!name.equals("Price")) {
-            defineDoubleParamPrivate(section, name, value);
-        }
-    }
-
-    void defineDoubleParamPrivate(String section, String name, double value) {
-        if (value != 0.0) {
-            doubleParams.put(new Parameter(section, name, 1), value);
-        }
-        else {
-            doubleParams.remove(new Parameter(section, name, 1));
-        }
+        return result;
     }
 
     @Override
@@ -188,7 +165,10 @@ public class Laptop {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Laptop laptop = (Laptop) o;
-        return vendorCode == laptop.vendorCode && barCode == laptop.barCode && Double.compare(price, laptop.price) == 0 && Double.compare(discount, laptop.discount) == 0 && Objects.equals(brand, laptop.brand) && Objects.equals(model, laptop.model) && Objects.equals(color, laptop.color);
+        return vendorCode == laptop.vendorCode && barCode == laptop.barCode &&
+                Double.compare(price, laptop.price) == 0 && Double.compare(discount, laptop.discount) == 0 &&
+                Objects.equals(brand, laptop.brand) && Objects.equals(model, laptop.model) &&
+                Objects.equals(color, laptop.color) && hasSameDefinitions(laptop);
     }
 
     @Override
