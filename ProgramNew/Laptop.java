@@ -1,6 +1,6 @@
 package ProgramNew;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Laptop {
     String brand;
@@ -16,6 +16,8 @@ public class Laptop {
     double price;
 
     double discount;
+
+    HashMap<Parameter, Definition> definitions;
 
     HashMap<Parameter, String> stringParams;
 
@@ -127,10 +129,10 @@ public class Laptop {
 
     void defineStringParamPrivate(String section, String name, String value) {
         if (value != null && !value.isBlank()) {
-            stringParams.put(new Parameter(section, name), value);
+            stringParams.put(new Parameter(section, name, 0), value);
         }
         else {
-            stringParams.remove(new Parameter(section, name));
+            stringParams.remove(new Parameter(section, name, 0));
         }
     }
 
@@ -144,10 +146,10 @@ public class Laptop {
 
     public void defineIntParam(String section, String name, int value) {
         if (value != 0) {
-            intParams.put(new Parameter(section, name), value);
+            intParams.put(new Parameter(section, name, 1), value);
         }
         else {
-            intParams.remove(new Parameter(section, name));
+            intParams.remove(new Parameter(section, name, 1));
         }
     }
 
@@ -168,10 +170,10 @@ public class Laptop {
 
     void defineDoubleParamPrivate(String section, String name, double value) {
         if (value != 0.0) {
-            doubleParams.put(new Parameter(section, name), value);
+            doubleParams.put(new Parameter(section, name, 1), value);
         }
         else {
-            doubleParams.remove(new Parameter(section, name));
+            doubleParams.remove(new Parameter(section, name, 1));
         }
     }
 
