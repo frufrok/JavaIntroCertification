@@ -99,8 +99,8 @@ public class Laptop {
         Parameter brandParam = new Parameter("Primary", "Brand", 0);
         Parameter modelParam = new Parameter("Primary", "Model", 0);
         Parameter colorParam = new Parameter("Appearance", "Color", 0);
-        Parameter vendorCodeParam = new Parameter("Codes", "Vendor Code", 0);
-        Parameter barCodeParam = new Parameter("Codes", "Bar Code", 0);
+        Parameter vendorCodeParam = new Parameter("Codes", "Vendor Code", 1);
+        Parameter barCodeParam = new Parameter("Codes", "Bar Code", 1);
         Parameter priceParam = new Parameter("Price", "Base", 2);
         Parameter discountParam = new Parameter("Price", "Discount", 2);
         Parameter discountedPriceParam = new Parameter("Price", "Final", 2);
