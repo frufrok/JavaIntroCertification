@@ -17,17 +17,67 @@ public class LaptopCatalog {
         this.allowableValues = new HashMap<>();
     }
 
-    public static HashSet<Laptop> getRandomCatalog() {
-        HashSet<Laptop> result = new HashSet<>();
-        Laptop samsung1 = new Laptop("Samsung", "GalaxyNote", "Black", 101, 201, 500, 15, null);
-        Laptop samsung2 = new Laptop("Samsung", "GalaxyNote", "Black", 101, 201, 500, 15, null);
-        result.add(samsung1);
-        result.add(samsung2);
-        samsung2.addDefinition(new Definition(new Parameter("Other", "Wi-Fi Generation", 0), "5G"));
-        samsung2.addDefinition(new Definition(new Parameter("CPU", "Cores Count", 1), 8));
-        result.add(samsung2);
-        result.add(new Laptop("HP", "Pavilion", "White", 102, 202, 450, 10, null));
+    public static String getRandomStringFromList(ArrayList<String> list){
+        Random rnd = new Random();
+        return list.get(rnd.nextInt(list.size()));
+    }
 
+    public static HashSet<Laptop> getRandomCatalog() {
+        ArrayList<Map.Entry<String,String>> brandsAndModels = new ArrayList<>();
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("Acer", "Aspire 5"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("Apple", "MackBook Air M1"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("Apple", "MackBook Air M2"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("Gigabyte", "Aorus 15 BMF"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("HP", "Dragonfly Pro Chromebook"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("HP", "Pavillion Aero 13"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("HP", "Pavillion Plus 14"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("Lenovo", "IdeaPad Flex 5i 14"));
+        brandsAndModels.add(new AbstractMap.SimpleEntry<>("Xiaomi", "RedmiBook"));
+        Random rnd = new Random();
+
+        ArrayList<String> colors =
+                new ArrayList<>(Arrays.asList(
+                    "White", "Black", "Blue", "Pink", "Yellow", "Red", "Green", "Gray", "Aluminium"));
+        ArrayList<String> processorModels =
+                new ArrayList<>(Arrays.asList(
+                    "Intel Core i3", "Intel Core i5", "Intel Core i7",
+                    "AMD Ryzen", "AMD Athlon", "Cortex-M4"));
+        ArrayList<String> operatingSystems =
+                new ArrayList<>(Arrays.asList(
+                        "Windows 10", "Windows 11", "MacOS", "Linux", "Ubuntu"));
+
+        HashSet<Laptop> result = new HashSet<>();
+        for (Map.Entry<String, String> brandAndModel : brandsAndModels) {
+            Laptop currentLaptop = new Laptop(
+                    brandAndModel.getKey(),
+                    brandAndModel.getValue(),
+                    getRandomStringFromList(colors),
+                    rnd.nextInt(1000000, 9999999),
+                    rnd.nextInt(1000000, 9999999),
+                    rnd.nextInt(25, 50) * 10,
+                    rnd.nextInt(0, 10)*5, null);
+            currentLaptop.addDefinition(
+                    new Definition(
+                            new Parameter("CPU", "Model", 0),
+                            getRandomStringFromList(processorModels)));
+            currentLaptop.addDefinition(
+                    new Definition(
+                            new Parameter("CPU", "Cores Count", 1),
+                    rnd.nextInt(1,6)*2));
+            currentLaptop.addDefinition(
+                    new Definition(
+                            new Parameter("RAM", "Size", 2),
+                         Math.pow(2, rnd.nextInt(3, 6))));
+            currentLaptop.addDefinition(
+                    new Definition(
+                            new Parameter("Operating System", "OS", 0),
+                            getRandomStringFromList(operatingSystems)));
+            currentLaptop.addDefinition(
+                    new Definition(
+                            new Parameter("Storage", "Hard Drive Size", 2),
+                            Math.pow(2, rnd.nextInt(7, 12))));
+            result.add(currentLaptop);
+        }
         return  result;
     }
 
@@ -82,7 +132,7 @@ public class LaptopCatalog {
     }
 
     public void setMaxValues(HashMap<Parameter, Double> maxValues) {
-        this.maxValues = Objects.requireNonNullElseGet(maxValues, HashMap::new);;
+        this.maxValues = Objects.requireNonNullElseGet(maxValues, HashMap::new);
     }
 
     public Double getMaxValue(Parameter parameter) {
@@ -175,7 +225,7 @@ public class LaptopCatalog {
         return (curAllowableValues != null && curAllowableValues.contains(value));
     }
 
-    public boolean meetsReqs(Laptop laptop) {
+    public boolean meetsRequirements(Laptop laptop) {
         for (Map.Entry<Parameter, Double> pair : this.minValues.entrySet()) {
             Definition definition = laptop.getDefinitions().get(pair.getKey());
             if (definition == null) {
@@ -183,7 +233,7 @@ public class LaptopCatalog {
             }
             else {
                 try{
-                    if ((Integer) definition.getValue() < pair.getValue()){
+                    if ((Double) definition.getValue() < pair.getValue()){
                         return false;
                     }
                 }
@@ -199,7 +249,7 @@ public class LaptopCatalog {
             }
             else {
                 try{
-                    if ((Integer) definition.getValue() > pair.getValue()){
+                    if ((Double) definition.getValue() > pair.getValue()){
                         return false;
                     }
                 }
@@ -223,7 +273,7 @@ public class LaptopCatalog {
     }
 
     public LaptopCatalog getFilteredCatalog() {
-        List<Laptop> filteredList = this.catalog.stream().filter(this::meetsReqs).toList();
+        List<Laptop> filteredList = this.catalog.stream().filter(this::meetsRequirements).toList();
         return new LaptopCatalog(new HashSet<>(filteredList));
     }
 }

@@ -131,18 +131,18 @@ public class Laptop {
 
     public boolean hasSameDefinitions(Laptop another) {
         boolean result = true;
-        ArrayList<Definition> thisDefs = new ArrayList<>(this.definitions.values());
-        ArrayList<Definition> anotherDefs = new ArrayList<>(another.definitions.values());
+        ArrayList<Definition> thisDefinitions = new ArrayList<>(this.definitions.values());
+        ArrayList<Definition> anotherDefinitions = new ArrayList<>(another.definitions.values());
 
-        if (thisDefs.size() == anotherDefs.size()){
+        if (thisDefinitions.size() == anotherDefinitions.size()){
             Comparator<Definition> comparator = Comparator.comparing(o -> o.parameter.toString());
 
-            thisDefs.sort(comparator);
-            anotherDefs.sort(comparator);
+            thisDefinitions.sort(comparator);
+            anotherDefinitions.sort(comparator);
 
-            int count = thisDefs.size();
+            int count = thisDefinitions.size();
             for (int i = 0; i < count; i++) {
-                if (!thisDefs.get(i).equals(anotherDefs.get(i))) {
+                if (!thisDefinitions.get(i).equals(anotherDefinitions.get(i))) {
                     result = false;
                     break;
                 }

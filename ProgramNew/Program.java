@@ -46,16 +46,16 @@ public class Program {
 
     static void showLaptop(int index, Laptop laptop) {
         print((index + 1) + ". " + laptop.toString());
-        HashMap<Parameter, Definition> defs = laptop.definitions;
-        Map<String, List<Definition>> groupedDefs = defs.values().stream().collect(
+        HashMap<Parameter, Definition> definitions = laptop.definitions;
+        Map<String, List<Definition>> groupedDefinitions = definitions.values().stream().collect(
                 Collectors.groupingBy(Definition::getParameterSection));
-        ArrayList<String> sections = new ArrayList<>(groupedDefs.keySet());
+        ArrayList<String> sections = new ArrayList<>(groupedDefinitions.keySet());
         sections.sort(String::compareTo);
         for (String section : sections) {
             print("\t" + section + ":");
-            List<Definition> sectionDefs = groupedDefs.get(section);
-            sectionDefs.sort(Comparator.comparing(Definition::getParameterName));
-            for (Definition def : sectionDefs) {
+            List<Definition> sectionDefinitions = groupedDefinitions.get(section);
+            sectionDefinitions.sort(Comparator.comparing(Definition::getParameterName));
+            for (Definition def : sectionDefinitions) {
                 print("\t\t" + def.getParameterName() + ": " + def.getValue().toString());
             }
         }
@@ -234,23 +234,7 @@ public class Program {
         } while (!command.equals("b"));
     }
 
-    static String reqLenStr(String str, int reqLen){
-        if (str!= null && !str.isBlank()) {
-            int len = str.length();
-            if (len > reqLen) {
-                return str.substring(reqLen);
-            }
-            else {
-                return str + " ".repeat(reqLen - len);
-            }
-        }
-        else
-        {
-            return " ".repeat(reqLen);
-        }
-    }
-
-    static  void terminate(Scanner in) {
+    static void terminate(Scanner in) {
         in.close();
         System.exit(0);
     }
