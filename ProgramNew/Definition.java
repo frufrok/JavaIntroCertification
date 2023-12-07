@@ -1,5 +1,4 @@
 package ProgramNew;
-
 import java.util.Objects;
 
 public class Definition {
