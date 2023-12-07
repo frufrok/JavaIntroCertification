@@ -39,19 +39,7 @@ public class Program {
                 break;
             }
             else if (!command.equals("b")) {
-                try {
-                    ArrayList<Laptop> laptops = catalog.getSortedCatalog();
-                    int index = Integer.parseInt(command) - 1;
-                    if (laptops.size() <= index) {
-                        print("No such laptop.");
-                    }
-                    else {
-                        showLaptop(index, laptops.get(index));
-                    }
-                }
-                catch (Exception ignored) {
-                    print("No such laptop.");
-                }
+                parseLaptopIndex(catalog.getSortedCatalog(), command);
             }
         } while (!command.equals("b"));
     }
@@ -97,6 +85,7 @@ public class Program {
     }
 
     static ArrayList<Parameter> showParamsList(LaptopCatalog catalog) {
+        print("These parameters are available:");
         ArrayList<Parameter> result= new ArrayList<>();
         int i = 0;
         HashSet<Parameter> allParams = new HashSet<>();
@@ -147,19 +136,9 @@ public class Program {
     }
 
     static void setFilter(LaptopCatalog catalog, Parameter parameter, Scanner in) {
+        String command;
         if (parameter.getValueType() == 1 || parameter.getValueType() == 2) {
-            HashSet<Double> values = new HashSet<>();
-            catalog.getCatalog().forEach(laptop ->
-                    laptop.getDefinitions().values().stream().
-                            filter(definition ->
-                                    definition.getParameter().equals(parameter) &&
-                                            (definition.getParameter().getValueType()==1 ||
-                                                    definition.getParameter().getValueType()==2)).
-                            forEach(definition ->
-                                    values.add(Double.parseDouble(definition.getValue().toString()))));
-            ArrayList<Double> sortedValues = new ArrayList<>(values);
-            sortedValues.sort(Double::compareTo);
-            String command;
+            ArrayList<Double> sortedValues = catalog.getNumericValues(parameter);
             boolean flag;
             do {
                 command = readString(String.format("Values of %s are differ from %s to %s. Enter min value to filter or leave field empty.",
@@ -203,28 +182,12 @@ public class Program {
             } while (!flag);
         }
         else {
-            HashSet<String> values = new HashSet<>();
-            catalog.getCatalog().forEach(laptop ->
-                    laptop.getDefinitions().values().stream().
-                            filter(definition ->
-                                    definition.getParameter().equals(parameter) &&
-                                    definition.getParameter().getValueType()!=1 &&
-                                            definition.getParameter().getValueType()!=2).
-                            forEach(definition ->
-                                    values.add(definition.getValue().toString())));
-            ArrayList<String> sortedValues = new ArrayList<>(values);
-            sortedValues.sort(String::compareTo);
-
-            String command;
+            ArrayList<String> sortedValues = catalog.getStringValues(parameter);
             do {
                 print("There are these values (allowed by filter are signed by *):");
                 for (int i = 0; i < sortedValues.size(); i++) {
                     String value = sortedValues.get(i);
-                    String sign = "";
-                    HashSet<String> curAllowableValues = catalog.getAllowableValues().get(parameter);
-                    if (curAllowableValues!=null && curAllowableValues.contains(value)){
-                        sign =  " *";
-                    }
+                    String sign = catalog.isStringValueAllowable(parameter, value)? " *" : "";
                     print("\t" + (i + 1) + ". " + value + sign);
                 }
                 command = readString("Enter number to add or remove value from filter allowable values list, \"d\" when done.", in);
@@ -248,9 +211,27 @@ public class Program {
     }
 
     static  void showFilteredCatalog(LaptopCatalog catalog, Scanner in) {
-
-
-
+        print("Filtered laptop catalog:");
+        LaptopCatalog filteredCatalog = catalog.getFilteredCatalog();
+        print(filteredCatalog.toString());
+        String command;
+        do {
+            command = readString("Enter number to see more, \"s\" to configure filters, \"f\" for full catalog, \"b\" for back, \"e\" for exit.", in).toLowerCase();
+            if (command.equals("e")) {
+                terminate(in);
+            }
+            else if (command.equals("s")) {
+                configureFilters(catalog, in);
+                break;
+            }
+            else if (command.equals("f")) {
+                showFullCatalog(catalog, in);
+                break;
+            }
+            else if (!command.equals("b")) {
+                parseLaptopIndex(filteredCatalog.getSortedCatalog(), command);
+            }
+        } while (!command.equals("b"));
     }
 
     static String reqLenStr(String str, int reqLen){
@@ -288,6 +269,22 @@ public class Program {
         catch(Exception ignored) {
             result = "";
         }
+        print("");
         return result;
+    }
+
+    static void parseLaptopIndex(ArrayList<Laptop> laptops, String command) {
+        try {
+            int index = Integer.parseInt(command) - 1;
+            if (laptops.size() <= index) {
+                print("No such laptop.");
+            }
+            else {
+                showLaptop(index, laptops.get(index));
+            }
+        }
+        catch (Exception ignored) {
+            print("No such laptop.");
+        }
     }
 }

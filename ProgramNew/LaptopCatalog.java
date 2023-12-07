@@ -1,5 +1,4 @@
 package ProgramNew;
-
 import java.util.*;
 
 public class LaptopCatalog {
@@ -138,4 +137,95 @@ public class LaptopCatalog {
             }
         }
     }
+
+    public ArrayList<Double> getNumericValues(Parameter numericParameter) {
+        ArrayList<Double> result = new ArrayList<>();
+        if (numericParameter.getValueType() == 1 || numericParameter.getValueType()==2) {
+            HashSet<Double> values = new HashSet<>();
+            catalog.forEach(laptop ->
+                    laptop.getDefinitions().values().stream().
+                            filter(definition ->
+                                    definition.getParameter().equals(numericParameter)).
+                            forEach(definition ->
+                                    values.add(Double.parseDouble(definition.getValue().toString()))));
+            result = new ArrayList<>(values);
+            result.sort(Double::compareTo);
+        }
+        return result;
+    }
+
+    public ArrayList<String> getStringValues(Parameter stringParameter) {
+        ArrayList<String> result = new ArrayList<>();
+        if (stringParameter.getValueType() != 1 && stringParameter.getValueType() != 2) {
+            HashSet<String> values = new HashSet<>();
+            catalog.forEach(laptop ->
+                    laptop.getDefinitions().values().stream().
+                            filter(definition ->
+                                    definition.getParameter().equals(stringParameter)).
+                            forEach(definition ->
+                                    values.add(definition.getValue().toString())));
+            result = new ArrayList<>(values);
+            result.sort(String::compareTo);
+        }
+        return  result;
+    }
+
+    public boolean isStringValueAllowable(Parameter stringParameter, String value) {
+        HashSet<String> curAllowableValues = this.allowableValues.get(stringParameter);
+        return (curAllowableValues != null && curAllowableValues.contains(value));
+    }
+
+    public boolean meetsReqs(Laptop laptop) {
+        for (Map.Entry<Parameter, Double> pair : this.minValues.entrySet()) {
+            Definition definition = laptop.getDefinitions().get(pair.getKey());
+            if (definition == null) {
+                return false;
+            }
+            else {
+                try{
+                    if ((Integer) definition.getValue() < pair.getValue()){
+                        return false;
+                    }
+                }
+                catch (Exception ignored) {
+                    return false;
+                }
+            }
+        }
+        for (Map.Entry<Parameter, Double> pair : this.maxValues.entrySet()) {
+            Definition definition = laptop.getDefinitions().get(pair.getKey());
+            if (definition == null) {
+                return false;
+            }
+            else {
+                try{
+                    if ((Integer) definition.getValue() > pair.getValue()){
+                        return false;
+                    }
+                }
+                catch (Exception ignored) {
+                    return false;
+                }
+            }
+        }
+        for (Map.Entry<Parameter, HashSet<String>> pair : this.allowableValues.entrySet()) {
+            Definition definition = laptop.getDefinitions().get(pair.getKey());
+            if (definition == null) {
+                return false;
+            }
+            else {
+                if (!pair.getValue().contains(definition.getValue().toString())){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public LaptopCatalog getFilteredCatalog() {
+        List<Laptop> filteredList = this.catalog.stream().filter(this::meetsReqs).toList();
+        return new LaptopCatalog(new HashSet<>(filteredList));
+    }
 }
+
+
