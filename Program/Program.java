@@ -1,4 +1,4 @@
-package ProgramNew;
+package Program;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;

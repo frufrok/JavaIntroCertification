@@ -1,4 +1,4 @@
-package ProgramNew;
+package Program;
 import java.util.*;
 
 public class Laptop {
